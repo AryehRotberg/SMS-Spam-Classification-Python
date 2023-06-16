@@ -1,7 +1,5 @@
 import streamlit as st
 
-import yaml
-
 import pickle
 
 from keras_preprocessing.sequence import pad_sequences
@@ -9,15 +7,9 @@ from keras_preprocessing.sequence import pad_sequences
 from keras.models import load_model
 
 
-def get_configs():
-    with open('main.yaml') as file:
-        config = yaml.safe_load(file)
-
-    config_tokenization = config['Tokenization']
-    config_model_selection = config['Model_Selection']
-
-    return config_tokenization, config_model_selection
-
+max_length = 171
+padding_type = 'post'
+trunc_type = 'post'
 
 def load_classifier():
     model = load_model('Outputs/model.h5')
@@ -34,9 +26,9 @@ def preprocess_text(text):
     text = [text]
     sequence = tokenizer.texts_to_sequences(text)
     padded_text = pad_sequences(sequence,
-                                maxlen=171,
-                                padding=config_tokenization['padding_type'],
-                                truncating=config_tokenization['trunc_type'])
+                                maxlen=max_length,
+                                padding=padding_type,
+                                truncating=trunc_type)
     
     return padded_text
 
@@ -51,7 +43,6 @@ def configure_site():
     return text_input, button
 
 
-config_tokenization, config_model_selection = get_configs()
 model = load_classifier()
 tokenizer = load_tokenizer()
 
