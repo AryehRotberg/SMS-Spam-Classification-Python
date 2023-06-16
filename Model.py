@@ -1,5 +1,3 @@
-import yaml
-
 import numpy as np
 import pandas as pd
 
@@ -15,37 +13,33 @@ from sklearn.metrics import classification_report
 np.random.seed(42)
 tf.random.set_seed(42)
 
-def get_configs():
-    with open('main.yaml') as file:
-        config = yaml.safe_load(file)
-
-    config_tokenization = config['Tokenization']
-    config_model_training = config['Model_Training']
-
-    return config_tokenization, config_model_training
-
 
 class Model:
     def __init__(self, input_length):
-        self.config_tokenization, self.config_model_training = get_configs()
+        self.vocab_size = 1000
+        self.embedding_dim = 16
+        self.loss = 'binary_crossentropy'
+        self.optimizer = 'adam'
+        self.metrics = ['accuracy']
+        self.num_epochs = 30
 
         self.model = keras.Sequential()
-        self.model.add(Embedding(self.config_tokenization['vocab_size'],
-                            self.config_model_training['embedding_dim'],
-                            input_length=input_length))
+        self.model.add(Embedding(self.vocab_size,
+                                 self.embedding_dim,
+                                 input_length=input_length))
         self.model.add(GlobalAveragePooling1D())
         self.model.add(Dense(24, activation='relu'))
         self.model.add(Dense(1, activation='sigmoid'))
 
-        self.model.compile(loss=self.config_model_training['loss'],
-                           optimizer=self.config_model_training['optimizer'],
-                           metrics=self.config_model_training['metrics'])
+        self.model.compile(loss=self.loss,
+                           optimizer=self.optimizer,
+                           metrics=self.metrics)
     
     def fit(self, X_train, y_train, X_test, y_test):
         history = self.model.fit(
             X_train,
             y_train,
-            epochs=self.config_model_training['num_epochs'],
+            epochs=self.num_epochs,
             validation_data=(X_test, y_test),
             verbose=2)
         
