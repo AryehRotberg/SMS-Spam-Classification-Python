@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-import uvicorn
 from pydantic import BaseModel
 
 import pickle
@@ -59,6 +58,8 @@ def predict(input: Input):
     prediction = model.predict(padded_text)[0][0]
     
     if prediction >= .5:
-        return f'Spam! Probability: {prediction}'
+        return {'class': 'Spam',
+                'confidence': float(prediction)}
     else:
-        return f'Not a spam. Probability: {prediction}'
+        return {'class': 'Not Spam',
+                'confidence': float(prediction)}
