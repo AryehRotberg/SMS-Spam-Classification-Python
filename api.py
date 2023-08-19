@@ -14,12 +14,12 @@ trunc_type = 'post'
 
 
 def load_classifier():
-    model = load_model('Outputs/model.h5')
+    model = load_model('outputs/model.h5')
     return model
 
 
 def load_tokenizer():
-    with open('Outputs/tokenizer.pickle', 'rb') as file:
+    with open('outputs/tokenizer.pickle', 'rb') as file:
         tokenizer = pickle.load(file)
     
     return tokenizer

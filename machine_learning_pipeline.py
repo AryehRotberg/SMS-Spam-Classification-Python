@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from keras_preprocessing.text import Tokenizer
 from keras_preprocessing.sequence import pad_sequences
 
-from Model import Model
+from model import Model
 
 
 np.random.seed(42)
@@ -18,7 +18,6 @@ oov_token = '<OOV>'
 vocab_size = 1000
 padding_type = 'post'
 trunc_type = 'post'
-
 
 def preprocess_dataframe(df):
     df.rename(columns={'v1': 'Label', 'v2': 'Text'}, inplace=True)
@@ -46,7 +45,6 @@ def get_padded_inputs(train_sentences, test_sentences):
     
     return tokenizer, train_padded, test_padded
 
-
 spam_df = pd.read_csv(dataset_location, encoding='latin-1', usecols=['v1', 'v2'])
 preprocess_dataframe(spam_df)
 
@@ -62,7 +60,7 @@ report = model.report(test_padded, test_labels)
 print(report)
 print(evaluation)
 
-with open('Outputs/tokenizer.pickle', 'wb') as file:
+with open('outputs/tokenizer.pickle', 'wb') as file:
     pickle.dump(tokenizer, file, protocol=pickle.HIGHEST_PROTOCOL)
 
-model.save('Outputs/model.h5')
+model.save('outputs/model.h5')
