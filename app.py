@@ -15,7 +15,6 @@ def load_classifier():
     model = load_model('outputs/model.h5')
     return model
 
-
 def load_tokenizer():
     with open('outputs/tokenizer.pickle', 'rb') as file:
         tokenizer = pickle.load(file)
@@ -31,7 +30,6 @@ def preprocess_text(text):
                                 truncating=trunc_type)
     
     return padded_text
-
 
 def configure_site():
     st.title('SMS Spam Classification')

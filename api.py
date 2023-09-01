@@ -14,7 +14,7 @@ trunc_type = 'post'
 
 
 def load_classifier():
-    model = load_model('outputs/model.h5')
+    model = load_model('outputs/models/model.h5')
     return model
 
 def load_tokenizer():
