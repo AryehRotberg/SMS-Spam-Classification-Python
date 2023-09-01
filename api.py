@@ -17,13 +17,11 @@ def load_classifier():
     model = load_model('outputs/model.h5')
     return model
 
-
 def load_tokenizer():
     with open('outputs/tokenizer.pickle', 'rb') as file:
         tokenizer = pickle.load(file)
     
     return tokenizer
-
 
 def preprocess_text(text):
     text = [text]
@@ -45,11 +43,9 @@ tokenizer = load_tokenizer()
 
 app = FastAPI()
 
-
 @app.get('/')
 def home():
     return 'Health Check'
-
 
 @app.post('/predict')
 def predict(input: Input):
