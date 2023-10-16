@@ -1,38 +1,65 @@
-import pickle
+import logging
 
-import numpy as np
 import pandas as pd
 
-from sklearn.model_selection import train_test_split
+from src.components.data_ingestion import DataIngestion
+from src.components.data_transformation import DataTransformation
+from src.components.model_trainer import ModelTrainer
+from src.components.model_evaluation import ModelEvaluation
 
-from utils import utils
-from src.components.model_trainer import Model
 
+# Logging Configuration
+logging.basicConfig(filename='logs/pipeline.log',
+                    format='[ %(asctime)s ] %(lineno)d %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
 
-np.random.seed(42)
+# Data Ingestion
+data_ingestion = DataIngestion()
+data_ingestion.preprocess_dataframe()
+data_ingestion.split_data()
+data_ingestion.to_csv(dataframe_processed_directory='data/processed',
+                      train_directory='data/train',
+                      test_directory='data/test')
 
-# Data Ingestion and Transformation
-utils = utils()
+logging.info('Created dataframe and splitted into train test.\n')
 
-spam_df = pd.read_csv('data/spam_dataset.csv', encoding='latin-1', usecols=['v1', 'v2'])
-spam_df = utils.preprocess_dataframe(spam_df)
+# Data Transformation
+data_transformation = DataTransformation()
+train_padded_sentences, test_padded_sentences = data_transformation.get_padded_sequences()
+data_transformation.save_tokenizer(directory='outputs/tokenizers')
 
-train_sentences, test_sentences, train_labels, test_labels = train_test_split(spam_df.text, spam_df.label, test_size=0.3)
-tokenizer, train_padded, test_padded = utils.get_padded_sequences(spam_df, train_sentences, test_sentences)
+logging.info('Tokenized and padded sentences.\n')
 
 # Model Training
-model = Model(input_length=spam_df.text_length.max())
-history = model.fit(train_padded, train_labels, test_padded, test_labels)
+model_trainer = ModelTrainer()
+model_trainer.call()
+model_trainer.compile()
 
-# Model Evaluation
-evaluation = model.evaluate(test_padded, test_labels)
-report = model.report(test_padded, test_labels)
+train_labels = pd.read_csv('data/train/train_labels.csv').squeeze()
+test_labels = pd.read_csv('data/test/test_labels.csv').squeeze()
 
-print(report)
-print(evaluation)
+history = model_trainer.fit(train_padded_sentences,
+                            test_padded_sentences,
+                            train_labels,
+                            test_labels)
 
-# Model Saving
-with open('outputs/tokenizer.pickle', 'wb') as file:
-    pickle.dump(tokenizer, file, protocol=pickle.HIGHEST_PROTOCOL)
+model_trainer.save('outputs/models')
 
-model.save('outputs/models/model.h5')
+train_labels = pd.read_csv('data/train/train_labels.csv').squeeze()
+test_labels = pd.read_csv('data/test/test_labels.csv').squeeze()
+
+# Model Evaluation - Train Set
+model_evaluation = ModelEvaluation(train_padded_sentences, train_labels)
+report = model_evaluation.get_classification_report()
+conf_matrix = model_evaluation.get_confusion_matrix()
+
+logging.info(f'Train Set -> Classification Report: \n{report}\n')
+logging.info(f'Train Set -> Confusion Matrix: \n{conf_matrix}\n')
+
+# Model Evaluation - Test Set
+model_evaluation = ModelEvaluation(test_padded_sentences, test_labels)
+report = model_evaluation.get_classification_report()
+conf_matrix = model_evaluation.get_confusion_matrix()
+
+logging.info(f'Test Set -> Classification Report: \n{report}\n')
+logging.info(f'Test Set -> Confusion Matrix: \n{conf_matrix}\n')

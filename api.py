@@ -1,3 +1,5 @@
+import yaml
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 
@@ -12,6 +14,9 @@ max_length = 171
 padding_type = 'post'
 trunc_type = 'post'
 
+with open('config.yaml') as file:
+    config = yaml.safe_load(file)
+    config = config['data_transformation']
 
 def load_classifier():
     model = load_model('outputs/models/model.h5')
@@ -27,9 +32,9 @@ def preprocess_text(text):
     text = [text]
     sequence = tokenizer.texts_to_sequences(text)
     padded_text = pad_sequences(sequence,
-                                maxlen=max_length,
-                                padding=padding_type,
-                                truncating=trunc_type)
+                                maxlen=config['max_text_length'],
+                                padding=config['padding_type'],
+                                truncating=config['trunc_type'])
     
     return padded_text
 
