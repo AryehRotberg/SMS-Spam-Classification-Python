@@ -45,21 +45,27 @@ history = model_trainer.fit(train_padded_sentences,
 
 model_trainer.save('outputs/models')
 
+logging.info('Trained and saved model.\n')
+
 train_labels = pd.read_csv('data/train/train_labels.csv').squeeze()
 test_labels = pd.read_csv('data/test/test_labels.csv').squeeze()
 
 # Model Evaluation - Train Set
 model_evaluation = ModelEvaluation(train_padded_sentences, train_labels)
+evaluation = model_evaluation.evaluate()
 report = model_evaluation.get_classification_report()
 conf_matrix = model_evaluation.get_confusion_matrix()
 
+logging.info(f'Train Set -> Evaluation: \n{evaluation}\n')
 logging.info(f'Train Set -> Classification Report: \n{report}\n')
 logging.info(f'Train Set -> Confusion Matrix: \n{conf_matrix}\n')
 
 # Model Evaluation - Test Set
 model_evaluation = ModelEvaluation(test_padded_sentences, test_labels)
+evaluation = model_evaluation.evaluate()
 report = model_evaluation.get_classification_report()
 conf_matrix = model_evaluation.get_confusion_matrix()
 
+logging.info(f'Test Set -> Evaluation: \n{evaluation}\n')
 logging.info(f'Test Set -> Classification Report: \n{report}\n')
-logging.info(f'Test Set -> Confusion Matrix: \n{conf_matrix}\n')
+logging.info(f'Test Set -> Confusion Matrix: \n{conf_matrix}')

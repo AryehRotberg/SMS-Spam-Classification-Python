@@ -12,6 +12,9 @@ class ModelEvaluation:
         self.labels = labels
 
         self.pred = self.model.predict(self.sentences) >= 0.5
+    
+    def evaluate(self):
+        return self.model.evaluate(self.sentences, self.labels)
 
     def get_classification_report(self):
         return pd.DataFrame(classification_report(self.labels, self.pred, output_dict=True)).transpose()
